@@ -812,8 +812,6 @@ const createStyles = (colors: any, isDark: boolean) => StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     backgroundColor: colors.primary,
-    borderWidth: 1,
-    borderColor: '#1F3C95',
     padding: 14,
     borderRadius: 5,
     alignItems: 'center',
@@ -821,7 +819,7 @@ const createStyles = (colors: any, isDark: boolean) => StyleSheet.create({
     gap: 8,
   },
   addFundsText: {
-    color: colors.text,
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '500',
   },
