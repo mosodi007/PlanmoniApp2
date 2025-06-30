@@ -7,9 +7,9 @@ declare global {
       EXPO_PUBLIC_MONO_PUBLIC_KEY: string;
       EXPO_PUBLIC_API_URL: string;
       PAYSTACK_SECRET_KEY: string;
-      DOJAH_APP_ID: string;
+      DOJAH_PUBLIC_KEY: string;
       DOJAH_PRIVATE_KEY: string;
-      OPENAI_API_KEY: string;
+      DOJAH_APP_ID: string;
     }
   }
 }
