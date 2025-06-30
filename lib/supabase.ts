@@ -36,25 +36,35 @@ const configError = validateSupabaseConfig();
 let supabase: any;
 
 if (configError) {
-  console.error('Supabase Configuration Error:', configError);
-  // Create a mock client that will show the error when used
+  console.warn('Supabase Configuration Warning:', configError);
+  // Create a mock client that returns resolved promises with null data and error messages
   supabase = {
     auth: {
-      signUp: () => Promise.reject(new Error(configError)),
-      signInWithPassword: () => Promise.reject(new Error(configError)),
-      signOut: () => Promise.reject(new Error(configError)),
-      getSession: () => Promise.resolve({ data: { session: null }, error: new Error(configError) }),
-      onAuthStateChange: () => ({ 
-        data: { subscription: { unsubscribe: () => {} } }, 
-        error: null 
-      }),
+      signUp: () => Promise.resolve({ data: { user: null, session: null }, error: { message: configError } }),
+      signInWithPassword: () => Promise.resolve({ data: { user: null, session: null }, error: { message: configError } }),
+      signOut: () => Promise.resolve({ error: null }),
+      getSession: () => Promise.resolve({ data: { session: null }, error: { message: configError } }),
+      onAuthStateChange: (callback: any) => {
+        // Call callback immediately with null session
+        callback('SIGNED_OUT', null);
+        return { 
+          data: { 
+            subscription: { 
+              unsubscribe: () => {} 
+            } 
+          }, 
+          error: null 
+        };
+      },
     },
     from: () => ({
-      select: () => Promise.reject(new Error(configError)),
-      insert: () => Promise.reject(new Error(configError)),
-      update: () => Promise.reject(new Error(configError)),
-      delete: () => Promise.reject(new Error(configError)),
+      select: () => Promise.resolve({ data: null, error: { message: configError } }),
+      insert: () => Promise.resolve({ data: null, error: { message: configError } }),
+      update: () => Promise.resolve({ data: null, error: { message: configError } }),
+      delete: () => Promise.resolve({ data: null, error: { message: configError } }),
+      upsert: () => Promise.resolve({ data: null, error: { message: configError } }),
     }),
+    rpc: () => Promise.resolve({ data: null, error: { message: configError } }),
   };
 } else {
   supabase = createClient<Database>(supabaseUrl!, supabaseAnonKey!);
@@ -80,5 +90,6 @@ if (Platform.OS === 'web' && typeof window !== 'undefined' && window.addEventLis
 if (typeof process !== 'undefined' && process.on) {
   process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    // Don't exit the process, just log the error
   });
 }
