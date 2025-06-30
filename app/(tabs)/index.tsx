@@ -811,7 +811,7 @@ const createStyles = (colors: any, isDark: boolean) => StyleSheet.create({
   addFundsButton: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: colors.backgroundSecondary,
+    backgroundColor: colors.backgroundTertiary,
     borderWidth: 1,
     borderColor: '#1F3C95',
     padding: 14,
