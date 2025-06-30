@@ -109,20 +109,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="notifications"
-        options={{
-          title: 'Notifications',
-          tabBarIcon: ({ color, size }) => (
-            <View>
-              <Bell size={size} color={color} />
-              {unreadNotifications > 0 && (
-                <View style={styles.notificationBadge} />
-              )}
-            </View>
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="settings"
         options={{
           title: 'Settings',

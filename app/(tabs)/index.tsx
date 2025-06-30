@@ -19,6 +19,7 @@ import { useRealtimeTransactions } from '@/hooks/useRealtimeTransactions';
 import { useHaptics } from '@/hooks/useHaptics';
 import { logAnalyticsEvent } from '@/lib/firebase';
 import { formatPayoutFrequency, getDayOfWeekName } from '@/lib/formatters';
+import NotificationIcon from '@/components/NotificationIcon';
 
 export default function HomeScreen() {
   const { showBalances, toggleBalances, balance, lockedBalance, availableBalance } = useBalance();
@@ -276,9 +277,12 @@ export default function HomeScreen() {
                 fontSize={18}
               />
             </Pressable>
-            <Pressable onPress={handleHelpPress} style={styles.helpButton}>
-              <HelpCircle size={24} color={colors.text} />
-            </Pressable>
+            <View style={styles.headerActions}>
+              <NotificationIcon />
+              <Pressable onPress={handleHelpPress} style={styles.helpButton}>
+                <HelpCircle size={24} color={colors.text} />
+              </Pressable>
+            </View>
           </View>
           <View style={styles.greetingContainer}>
             <Text style={styles.greeting}>Hello, {firstName}.</Text>
@@ -698,6 +702,11 @@ const createStyles = (colors: any, isDark: boolean) => StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 16,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   avatarButton: {
     borderRadius: 24,
