@@ -813,7 +813,7 @@ const createStyles = (colors: any, isDark: boolean) => StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: colors.backgroundSecondary,
     borderWidth: 1,
-    borderColor: colors.borderSecondary,
+    borderColor: '#1F3C95',
     padding: 14,
     borderRadius: 5,
     alignItems: 'center',
