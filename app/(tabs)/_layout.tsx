@@ -127,19 +127,20 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="assistant"
+        options={{
+          title: 'AI',
+          tabBarIcon: ({ color, size }) => <Sparkles size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="insights"
         options={{
           title: 'Insights',
           tabBarIcon: ({ color, size }) => <PieChart size={size} color={color} />,
         }}
       />
-      <Tabs.Screen
-        name="assistant"
-        options={{
-          title: 'Assistant',
-          tabBarIcon: ({ color, size }) => <Sparkles size={size} color={color} />,
-        }}
-      />
+      
       <Tabs.Screen
         name="settings"
         options={{
