@@ -350,8 +350,8 @@ export default function AssistantScreen() {
             <Sparkles size={24} color="#FFFFFF" />
           </View>
           <View style={styles.headerTextContainer}>
-            <Text style={styles.headerTitle}>Financial Assistant</Text>
-            <Text style={styles.headerSubtitle}>Powered by AI</Text>
+            <Text style={styles.headerTitle}>Planmoni AI</Text>
+            <Text style={styles.headerSubtitle}>Plan your finances</Text>
           </View>
         </View>
       </Animated.View>
