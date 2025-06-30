@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const yauzl = require('yauzl');
 
 async function extractZip() {
   try {
@@ -21,8 +21,53 @@ async function extractZip() {
       fs.mkdirSync(extractPath, { recursive: true });
     }
     
-    // Use unzip command to extract
-    execSync(`unzip -o "${zipFileName}" -d "${extractPath}"`, { stdio: 'inherit' });
+    // Extract using yauzl
+    await new Promise((resolve, reject) => {
+      yauzl.open(zipFileName, { lazyEntries: true }, (err, zipfile) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        
+        zipfile.readEntry();
+        
+        zipfile.on('entry', (entry) => {
+          const entryPath = path.join(extractPath, entry.fileName);
+          
+          if (/\/$/.test(entry.fileName)) {
+            // Directory entry
+            fs.mkdirSync(entryPath, { recursive: true });
+            zipfile.readEntry();
+          } else {
+            // File entry
+            // Ensure directory exists
+            fs.mkdirSync(path.dirname(entryPath), { recursive: true });
+            
+            zipfile.openReadStream(entry, (err, readStream) => {
+              if (err) {
+                reject(err);
+                return;
+              }
+              
+              const writeStream = fs.createWriteStream(entryPath);
+              readStream.pipe(writeStream);
+              
+              writeStream.on('close', () => {
+                zipfile.readEntry();
+              });
+              
+              writeStream.on('error', reject);
+            });
+          }
+        });
+        
+        zipfile.on('end', () => {
+          resolve();
+        });
+        
+        zipfile.on('error', reject);
+      });
+    });
     
     console.log(`Successfully extracted to: ${extractPath}`);
     

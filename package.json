@@ -1,0 +1,12 @@
+{
+  "name": "zip-extractor",
+  "version": "1.0.0",
+  "description": "Extract zip files using Node.js",
+  "main": "extract-zip.js",
+  "scripts": {
+    "extract": "node extract-zip.js"
+  },
+  "dependencies": {
+    "yauzl": "^2.10.0"
+  }
+}
