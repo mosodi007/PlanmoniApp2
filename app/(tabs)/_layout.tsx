@@ -119,18 +119,19 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
         }}
       />
-      <Tabs.Screen
-        name="assistant"
-        options={{
-          title: 'AI',
-          tabBarIcon: ({ color, size }) => <Sparkles size={size} color={color} />,
-        }}
-      />
+      
       <Tabs.Screen
         name="calendar"
         options={{
           title: 'Calendar',
           tabBarIcon: ({ color, size }) => <Calendar size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="assistant"
+        options={{
+          title: 'AI',
+          tabBarIcon: ({ color, size }) => <Sparkles size={size} color={color} />,
         }}
       />
       
