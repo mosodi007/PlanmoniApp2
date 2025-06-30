@@ -798,7 +798,7 @@ const createStyles = (colors: any, isDark: boolean) => StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: colors.primary,
     padding: 14,
-    borderRadius: 8,
+    borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
