@@ -122,7 +122,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="ai-assistant"
         options={{
-          title: 'AI',
+          title: 'AI Planner',
           tabBarIcon: ({ color, size }) => <Sparkles size={size} color={color} />,
         }}
       />
