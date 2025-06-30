@@ -9,16 +9,20 @@ import {
   ActivityIndicator, 
   KeyboardAvoidingView, 
   Platform,
-  Keyboard
+  Keyboard,
+  Image,
+  Animated
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Send, Bot, ArrowRight, Wallet, Calendar, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { Send, Bot, ArrowRight, Zap, MessageSquare, Sparkles } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBalance } from '@/contexts/BalanceContext';
 import { useRealtimePayoutPlans } from '@/hooks/useRealtimePayoutPlans';
 import { useRealtimeTransactions } from '@/hooks/useRealtimeTransactions';
 import { router } from 'expo-router';
+import AIMessageBubble from '@/components/AIMessageBubble';
+import UserMessageBubble from '@/components/UserMessageBubble';
 
 type MessageType = 'user' | 'assistant' | 'system';
 
@@ -53,9 +57,9 @@ export default function AssistantScreen() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showFinancialSummary, setShowFinancialSummary] = useState(true);
   
   const scrollViewRef = useRef<ScrollView>(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
   
   // Scroll to bottom when new messages are added
   useEffect(() => {
@@ -63,6 +67,15 @@ export default function AssistantScreen() {
       scrollViewRef.current?.scrollToEnd({ animated: true });
     }, 100);
   }, [messages]);
+  
+  // Fade in animation
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 800,
+      useNativeDriver: true,
+    }).start();
+  }, []);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -150,209 +163,98 @@ export default function AssistantScreen() {
     }
   };
 
-  const handleActionPress = (action: Action) => {
-    if (action.route) {
-      router.push({
-        pathname: action.route,
-        params: action.params
-      });
-    }
-  };
-
-  const renderMessage = (message: Message) => {
-    const isUser = message.type === 'user';
-    
-    return (
-      <View 
-        key={message.id} 
-        style={[
-          styles.messageContainer,
-          isUser ? styles.userMessageContainer : styles.assistantMessageContainer
-        ]}
-      >
-        {!isUser && (
-          <View style={styles.avatarContainer}>
-            <Bot size={24} color={colors.primary} />
-          </View>
-        )}
-        
-        <View style={[
-          styles.messageBubble,
-          isUser ? [styles.userBubble, { backgroundColor: colors.primary }] : [styles.assistantBubble, { backgroundColor: isDark ? colors.backgroundTertiary : colors.backgroundTertiary }]
-        ]}>
-          <Text style={[
-            styles.messageText,
-            isUser ? styles.userMessageText : [styles.assistantMessageText, { color: colors.text }]
-          ]}>
-            {message.content}
-          </Text>
-          
-          {message.actions && message.actions.length > 0 && (
-            <View style={styles.actionsContainer}>
-              {message.actions.map((action, index) => (
-                <Pressable 
-                  key={index}
-                  style={styles.actionButton}
-                  onPress={() => handleActionPress(action)}
-                >
-                  <Text style={styles.actionButtonText}>{action.label}</Text>
-                  <ArrowRight size={16} color={colors.primary} />
-                </Pressable>
-              ))}
-            </View>
-          )}
-        </View>
-        
-        {isUser && (
-          <View style={styles.avatarContainer}>
-            <View style={styles.userAvatar}>
-              <Text style={styles.userAvatarText}>
-                {session?.user?.user_metadata?.first_name?.[0] || 'U'}
-              </Text>
-            </View>
-          </View>
-        )}
-      </View>
-    );
+  const handleSuggestion = (suggestion: string) => {
+    setInput(suggestion);
   };
 
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: colors.backgroundSecondary,
+      backgroundColor: isDark ? colors.background : colors.backgroundSecondary,
     },
     header: {
-      backgroundColor: colors.surface,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-      paddingHorizontal: 16,
-      paddingVertical: 16,
+      backgroundColor: colors.primary,
+      paddingHorizontal: 20,
+      paddingVertical: 24,
+      borderBottomLeftRadius: 24,
+      borderBottomRightRadius: 24,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 4,
+    },
+    headerContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    headerIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 16,
+    },
+    headerTextContainer: {
+      flex: 1,
     },
     headerTitle: {
-      fontSize: 24,
+      fontSize: 22,
       fontWeight: '700',
-      color: colors.text,
+      color: '#FFFFFF',
+      marginBottom: 4,
     },
     headerSubtitle: {
       fontSize: 14,
-      color: colors.textSecondary,
-      marginTop: 4,
-    },
-    financialSummary: {
-      backgroundColor: colors.card,
-      borderRadius: 12,
-      padding: 16,
-      margin: 16,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    summaryHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 12,
-    },
-    summaryTitle: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: colors.text,
-    },
-    toggleButton: {
-      padding: 4,
-    },
-    summaryContent: {
-      gap: 12,
-    },
-    summaryRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    summaryLabel: {
-      fontSize: 14,
-      color: colors.textSecondary,
-    },
-    summaryValue: {
-      fontSize: 14,
-      fontWeight: '600',
-      color: colors.text,
+      color: 'rgba(255, 255, 255, 0.8)',
     },
     messagesContainer: {
       flex: 1,
       padding: 16,
     },
-    messageContainer: {
-      flexDirection: 'row',
-      marginBottom: 16,
-      maxWidth: '100%',
-    },
-    userMessageContainer: {
-      justifyContent: 'flex-end',
-    },
-    assistantMessageContainer: {
-      justifyContent: 'flex-start',
-    },
-    avatarContainer: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
+    emptyContainer: {
+      flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: isDark ? colors.backgroundTertiary : colors.backgroundTertiary,
-      marginHorizontal: 8,
+      padding: 24,
     },
-    userAvatar: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-      backgroundColor: colors.primary,
-      justifyContent: 'center',
-      alignItems: 'center',
+    emptyImage: {
+      width: 120,
+      height: 120,
+      marginBottom: 24,
     },
-    userAvatarText: {
-      color: '#FFFFFF',
-      fontSize: 16,
+    emptyTitle: {
+      fontSize: 20,
       fontWeight: '600',
-    },
-    messageBubble: {
-      borderRadius: 16,
-      padding: 12,
-      maxWidth: '70%',
-    },
-    userBubble: {
-      borderBottomRightRadius: 4,
-    },
-    assistantBubble: {
-      borderBottomLeftRadius: 4,
-    },
-    messageText: {
-      fontSize: 14,
-      lineHeight: 20,
-    },
-    userMessageText: {
-      color: '#FFFFFF',
-    },
-    assistantMessageText: {
       color: colors.text,
+      marginBottom: 8,
+      textAlign: 'center',
     },
-    actionsContainer: {
-      marginTop: 12,
-      gap: 8,
+    emptyText: {
+      fontSize: 16,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: 24,
+      lineHeight: 22,
     },
-    actionButton: {
+    loadingContainer: {
+      padding: 16,
+      alignItems: 'center',
+    },
+    loadingIndicator: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
-      backgroundColor: isDark ? 'rgba(59, 130, 246, 0.1)' : '#EFF6FF',
-      padding: 12,
-      borderRadius: 8,
-      borderWidth: 1,
-      borderColor: colors.primary,
+      backgroundColor: colors.backgroundTertiary,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 16,
     },
-    actionButtonText: {
+    loadingText: {
+      marginLeft: 8,
       fontSize: 14,
-      fontWeight: '500',
-      color: colors.primary,
+      color: colors.textSecondary,
     },
     inputContainer: {
       flexDirection: 'row',
@@ -364,7 +266,8 @@ export default function AssistantScreen() {
     },
     input: {
       flex: 1,
-      height: 48,
+      minHeight: 48,
+      maxHeight: 100,
       backgroundColor: colors.backgroundTertiary,
       borderRadius: 24,
       paddingHorizontal: 16,
@@ -383,24 +286,13 @@ export default function AssistantScreen() {
       alignItems: 'center',
       marginLeft: 12,
     },
-    loadingContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 16,
-    },
-    loadingText: {
-      marginLeft: 8,
-      fontSize: 14,
-      color: colors.textSecondary,
-    },
     suggestionContainer: {
       flexDirection: 'row',
       flexWrap: 'wrap',
       gap: 8,
-      marginTop: 8,
       paddingHorizontal: 16,
       paddingBottom: 16,
+      backgroundColor: colors.surface,
     },
     suggestionButton: {
       backgroundColor: colors.backgroundTertiary,
@@ -414,70 +306,69 @@ export default function AssistantScreen() {
       fontSize: 14,
       color: colors.text,
     },
+    typingIndicator: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 8,
+      borderRadius: 16,
+      backgroundColor: colors.backgroundTertiary,
+      alignSelf: 'flex-start',
+      marginBottom: 16,
+    },
+    typingDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.primary,
+      marginHorizontal: 2,
+    },
   });
+
+  const renderMessages = () => {
+    return messages.map((message) => {
+      if (message.type === 'user') {
+        return <UserMessageBubble key={message.id} message={message.content} />;
+      } else {
+        return <AIMessageBubble key={message.id} message={message.content} actions={message.actions} />;
+      }
+    });
+  };
+
+  const suggestions = [
+    "How can I optimize my finances?",
+    "When is my next payout?",
+    "How much have I saved?",
+    "Create a new payout plan",
+    "Analyze my spending"
+  ];
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Financial Assistant</Text>
-        <Text style={styles.headerSubtitle}>Ask me anything about your finances</Text>
-      </View>
-      
-      {showFinancialSummary && (
-        <View style={styles.financialSummary}>
-          <View style={styles.summaryHeader}>
-            <Text style={styles.summaryTitle}>Your Financial Summary</Text>
-            <Pressable 
-              style={styles.toggleButton}
-              onPress={() => setShowFinancialSummary(false)}
-            >
-              <ChevronUp size={20} color={colors.textSecondary} />
-            </Pressable>
+      <Animated.View style={[styles.header, { opacity: fadeAnim }]}>
+        <View style={styles.headerContent}>
+          <View style={styles.headerIcon}>
+            <Sparkles size={24} color="#FFFFFF" />
           </View>
-          
-          <View style={styles.summaryContent}>
-            <View style={styles.summaryRow}>
-              <View style={styles.summaryLabel}>
-                <Wallet size={16} color={colors.textSecondary} style={{ marginRight: 4 }} />
-                <Text style={styles.summaryLabel}>Available Balance</Text>
-              </View>
-              <Text style={styles.summaryValue}>₦{availableBalance.toLocaleString()}</Text>
-            </View>
-            
-            <View style={styles.summaryRow}>
-              <View style={styles.summaryLabel}>
-                <Calendar size={16} color={colors.textSecondary} style={{ marginRight: 4 }} />
-                <Text style={styles.summaryLabel}>Active Payout Plans</Text>
-              </View>
-              <Text style={styles.summaryValue}>{payoutPlans.filter(p => p.status === 'active').length}</Text>
-            </View>
+          <View style={styles.headerTextContainer}>
+            <Text style={styles.headerTitle}>Financial Assistant</Text>
+            <Text style={styles.headerSubtitle}>Powered by AI</Text>
           </View>
         </View>
-      )}
-      
-      {!showFinancialSummary && (
-        <Pressable 
-          style={[styles.financialSummary, { padding: 12 }]}
-          onPress={() => setShowFinancialSummary(true)}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text style={styles.summaryTitle}>Your Financial Summary</Text>
-            <ChevronDown size={20} color={colors.textSecondary} />
-          </View>
-        </Pressable>
-      )}
+      </Animated.View>
       
       <ScrollView 
         ref={scrollViewRef}
         style={styles.messagesContainer}
         contentContainerStyle={{ paddingBottom: 16 }}
       >
-        {messages.map(renderMessage)}
+        {renderMessages()}
         
         {isLoading && (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="small" color={colors.primary} />
-            <Text style={styles.loadingText}>Thinking...</Text>
+            <View style={styles.loadingIndicator}>
+              <ActivityIndicator size="small" color={colors.primary} />
+              <Text style={styles.loadingText}>Thinking...</Text>
+            </View>
           </View>
         )}
       </ScrollView>
@@ -511,17 +402,21 @@ export default function AssistantScreen() {
           </Pressable>
         </View>
         
-        <View style={styles.suggestionContainer}>
-          <Pressable style={styles.suggestionButton} onPress={() => setInput("How can I optimize my payout plans?")}>
-            <Text style={styles.suggestionText}>Optimize my plans</Text>
-          </Pressable>
-          <Pressable style={styles.suggestionButton} onPress={() => setInput("How much have I saved this month?")}>
-            <Text style={styles.suggestionText}>Monthly savings</Text>
-          </Pressable>
-          <Pressable style={styles.suggestionButton} onPress={() => setInput("When is my next payout?")}>
-            <Text style={styles.suggestionText}>Next payout</Text>
-          </Pressable>
-        </View>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.suggestionContainer}
+        >
+          {suggestions.map((suggestion, index) => (
+            <Pressable 
+              key={index} 
+              style={styles.suggestionButton}
+              onPress={() => handleSuggestion(suggestion)}
+            >
+              <Text style={styles.suggestionText}>{suggestion}</Text>
+            </Pressable>
+          ))}
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
