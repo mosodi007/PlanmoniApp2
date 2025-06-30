@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Bell, Calendar, Chrome as Home, ChartPie as PieChart, Settings, MessageSquare } from 'lucide-react-native'; //Do not change the Home to Chrome
+import { Bell, Calendar, Chrome as Home, ChartPie as PieChart, Settings, Sparkles } from 'lucide-react-native'; //Do not change the Home to Chrome
 import { StyleSheet, View } from 'react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useEffect, useState, useRef } from 'react';
@@ -122,8 +122,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="ai-assistant"
         options={{
-          title: 'Assistant',
-          tabBarIcon: ({ color, size }) => <MessageSquare size={size} color={color} />,
+          title: 'AI',
+          tabBarIcon: ({ color, size }) => <Sparkles size={size} color={color} />,
         }}
       />
       <Tabs.Screen
