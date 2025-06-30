@@ -662,7 +662,7 @@ export default function HomeScreen() {
           style={styles.addFundsButton} 
           onPress={handleAddFunds}
         >
-          <ArrowDownRight size={20} color={colors.text} />
+          <ArrowDownRight size={20} color='#FFFFFF' />
           <Text style={styles.addFundsText}>Deposit</Text>
         </Pressable>
         <Pressable 
